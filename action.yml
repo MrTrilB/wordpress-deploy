@@ -1,5 +1,8 @@
 name: 'WordPress Plugin/Theme Deployment Action'
 description: 'Deploy WordPress plugins or themes from GitHub to a server using SSH and rsync'
+branding:
+  icon: 'rocket'
+  color: 'blue'
 inputs:
   SSH_PRIVATE_KEY:
     description: 'The private SSH key for server access'
