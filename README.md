@@ -31,7 +31,7 @@ You can enable cache purging with the `CACHE_CLEAR` flag and perform PHP syntax 
            uses: actions/checkout@v4
 
          - name: 🔁 Starting Deployment
-           uses: yourusername/wp-deploy-action@v1
+           uses: MrTrilB/wordpress-deploy@v1.0.0
            with:
                SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
                SERVER_HOST: your.server.com
@@ -44,6 +44,19 @@ You can enable cache purging with the `CACHE_CLEAR` flag and perform PHP syntax 
    ```
 
 4. **Push changes to trigger the action:** After editing and saving the file, push the latest changes to your repository. The GitHub Action will automatically execute and handle the deployment process.
+
+## Deploying from a specific branch or tag
+
+To deploy from a specific branch, tag, or commit SHA, modify the checkout step in your workflow to specify the ref:
+
+```yml
+- name: 🚚 Getting latest code
+  uses: actions/checkout@v4
+  with:
+    ref: 'your-branch-name'  # or 'v1.0.0' for a tag, or a commit SHA
+```
+
+You can also use the `REF` input to make it configurable, but ensure the checkout step uses the desired reference.
 
 ## Setting up your SSH key
 
@@ -72,6 +85,7 @@ This action requires or supports the following variables:
 
 | Name          | Type     | Usage                                                                 |
 | ------------- | -------- | --------------------------------------------------------------------- |
+| `REF`         | _string_ | The git reference (branch, tag, or commit SHA) to deploy from. Modify the checkout step to use this ref. |
 | `SRC_PATH`    | _string_ | Local path to the source files for deployment. Defaults to `.`.       |
 | `FLAGS`       | _string_ | Rsync flags. Defaults to `-azvrhi --inplace --exclude='.*'`.          |
 | `PHP_LINT`    | _string_ | Set to `true` to enable PHP linting. Defaults to `false`.             |

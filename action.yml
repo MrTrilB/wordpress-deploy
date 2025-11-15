@@ -13,6 +13,9 @@ inputs:
   REMOTE_PATH:
     description: 'The remote path on the server where files should be deployed (e.g., wp-content/plugins/my-plugin)'
     required: true
+  REF:
+    description: 'The git reference (branch, tag, or commit SHA) to deploy from. Modify the checkout step in your workflow to use this ref.'
+    default: ''
   SRC_PATH:
     description: 'Local path to the source files for deployment'
     default: '.'
