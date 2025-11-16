@@ -11,6 +11,7 @@ validate() {
 	FLAGS="${FLAGS:-"-azvrhi --inplace --exclude='.*'"}"
 	PHP_LINT="${PHP_LINT:-"false"}"
 	CACHE_CLEAR="${CACHE_CLEAR:-"false"}"
+	CLEANUP="${CLEANUP:-"false"}"
 	SCRIPT="${SCRIPT:-""}"
 }
 
@@ -21,6 +22,14 @@ init() {
 	SERVER_DEST="${SSH_USER}@${SSH_HOST}:${REMOTE_PATH}"
 
 	parse_flags "$FLAGS"
+
+	if [ -f "${SRC_PATH}/.deployignore" ]; then
+		FLAGS_ARRAY+=("--exclude-from=${SRC_PATH}/.deployignore")
+	fi
+
+	if [ "${CLEANUP^^}" == "TRUE" ]; then
+		FLAGS_ARRAY+=("--delete")
+	fi
 
 	print_info
 	setup_ssh
@@ -37,6 +46,7 @@ print_info() {
 	echo "* Flags: ${FLAGS_ARRAY[@]}"
 	echo "* PHP linting: ${PHP_LINT}"
 	echo "* Cache clear: ${CACHE_CLEAR}"
+	echo "* Cleanup: ${CLEANUP}"
 	echo "* Post-deploy script: ${SCRIPT}"
 	echo "-----------------------"
 }
@@ -91,6 +101,17 @@ sync_files() {
 	#create multiplex connection
 	ssh -nNf ${SSH_SETTINGS} -o ControlMaster=yes "${SSH_USER}"
 	echo "Multiplex SSH connection established."
+
+	# Preview files to be removed if cleanup is enabled
+	if [ "${CLEANUP^^}" == "TRUE" ]; then
+		echo "Previewing files and folders to be removed..."
+		set -x
+		rsync --rsh="ssh ${SSH_SETTINGS}" \
+			"${FLAGS_ARRAY[@]}" --dry-run \
+			"${SRC_PATH}/" "${SERVER_DEST}"
+		set +x
+		echo "Preview complete. Starting actual deployment..."
+	fi
 
 	# Sync files to Server
 	set -x

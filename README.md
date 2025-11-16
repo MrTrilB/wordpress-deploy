@@ -2,9 +2,9 @@
 
 This GitHub Action allows you to easily deploy WordPress plugins or themes directly from GitHub to your WordPress server using an SSH private key and the rsync command.
 
-By default, the action deploys the repository's root directory. However, you can optionally deploy a specific directory using the `SRC_PATH` option. The `REMOTE_PATH` specifies where to deploy on the server.
+By default, the action deploys the repository's root directory. However, you can optionally deploy a specific directory using the `SRC_PATH` option. The `REMOTE_PATH` specifies where to deploy on the server. If a `.deployignore` file exists in the source path, it will be automatically used to exclude files and directories from deployment.
 
-You can enable cache purging with the `CACHE_CLEAR` flag and perform PHP syntax checks using the `PHP_LINT` flag. Additionally, custom commands can be executed on the server side by defining them with the `SCRIPT` option.
+You can enable cache purging with the `CACHE_CLEAR` flag and perform PHP syntax checks using the `PHP_LINT` flag. Additionally, custom commands can be executed on the server side by defining them with the `SCRIPT` option. The `CLEANUP` option allows removing files and folders from the server that are not part of the deployment, with a preview of what will be removed.
 
 ## GitHub Action workflow
 
@@ -31,16 +31,17 @@ You can enable cache purging with the `CACHE_CLEAR` flag and perform PHP syntax 
            uses: actions/checkout@v4
 
          - name: 🔁 Starting Deployment
-           uses: MrTrilB/wordpress-deploy@v1.0.0
+           uses: MrTrilB/wordpress-deploy@latest
            with:
                SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
                SERVER_HOST: your.server.com
                SERVER_USER: youruser
                REMOTE_PATH: /path/to/wp-content/plugins/your-plugin
-               FLAGS: -azvrhi --inplace --delete --delete-excluded --exclude-from=.deployignore
+               FLAGS: -azvrhi --inplace --delete --delete-excluded
                SCRIPT: bin/post-deploy.sh
                PHP_LINT: true
                CACHE_CLEAR: true
+               CLEANUP: true
    ```
 
 4. **Push changes to trigger the action:** After editing and saving the file, push the latest changes to your repository. The GitHub Action will automatically execute and handle the deployment process.
@@ -90,11 +91,12 @@ This action requires or supports the following variables:
 | `FLAGS`       | _string_ | Rsync flags. Defaults to `-azvrhi --inplace --exclude='.*'`.          |
 | `PHP_LINT`    | _string_ | Set to `true` to enable PHP linting. Defaults to `false`.             |
 | `CACHE_CLEAR` | _string_ | Set to `true` to clear WordPress cache. Defaults to `false`.          |
+| `CLEANUP`     | _string_ | Set to `true` to remove files and folders from the server that are not present in the deployment source. When enabled, a preview of files to be removed will be shown before the actual cleanup. Defaults to `false`. |
 | `SCRIPT`      | _string_ | Custom script to run on the remote server after deployment.          |
 
 ## Ignoring files
 
-If you want to exclude certain files or directories from being deployed, you can create a `.deployignore` file in your source directory. In this file, you can specify patterns of files and directories to exclude—one pattern per line. Blank lines and lines starting with `#` will be ignored.
+If you want to exclude certain files or directories from being deployed, you can create a `.deployignore` file in your source directory. In this file, you can specify patterns of files and directories to exclude—one pattern per line. Blank lines and lines starting with `#` will be ignored. The `.deployignore` file is automatically used if it exists in the source path.
 
 ### Example `.deployignore` file
 
@@ -111,9 +113,7 @@ vendor
 
 ### Configuring rsync with `.deployignore`
 
-To ensure the file is respected during deployment, you need to pass the appropriate rsync flags, including the `.deployignore` file, in your GitHub Action workflow. The default flags are `-azvrhi --inplace --exclude='.*'`.
-
-When using a `.deployignore` file, modify the flags like this: `FLAGS: -azvrhi --inplace --exclude-from=.deployignore`
+The action automatically uses the `.deployignore` file if present. No additional configuration is needed in the `FLAGS` option.
 
 ## Rsync option flags
 
