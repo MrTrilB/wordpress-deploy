@@ -2,9 +2,7 @@
 
 This GitHub Action allows you to easily deploy WordPress plugins or themes directly from GitHub to your WordPress server using an SSH private key and the rsync command.
 
-By default, the action deploys the repository's root directory. However, you can optionally deploy a specific directory using the `SRC_PATH` option. The `REMOTE_PATH` specifies where to deploy on the server. If a `.deployignore` file exists in the source path, it will be automatically used to exclude files and directories from deployment.
-
-You can enable cache purging with the `CACHE_CLEAR` flag and perform PHP syntax checks using the `PHP_LINT` flag. Additionally, custom commands can be executed on the server side by defining them with the `SCRIPT` option. The `CLEANUP` option allows removing files and folders from the server that are not part of the deployment, with a preview of what will be removed.
+By default, the action deploys the repository's root directory. However, you can optionally deploy a specific directory using the `SRC_PATH` option. The `REMOTE_PATH` specifies where to deploy on the server. If a `.deployignore` file exists in the source path, it will be automatically used to exclude files and directories from deployment, and cleanup will be enabled to remove any files from the server that are not present in the source.
 
 ## GitHub Action workflow
 
@@ -41,7 +39,6 @@ You can enable cache purging with the `CACHE_CLEAR` flag and perform PHP syntax 
                SCRIPT: bin/post-deploy.sh
                PHP_LINT: true
                CACHE_CLEAR: true
-               CLEANUP: true
    ```
 
 4. **Push changes to trigger the action:** After editing and saving the file, push the latest changes to your repository. The GitHub Action will automatically execute and handle the deployment process.
@@ -58,6 +55,27 @@ To deploy from a specific branch, tag, or commit SHA, modify the checkout step i
 ```
 
 You can also use the `REF` input to make it configurable, but ensure the checkout step uses the desired reference.
+
+## Ignoring files
+
+If you want to exclude certain files or directories from being deployed, you can create a `.deployignore` file in your source directory. In this file, you can specify patterns of files and directories to exclude—one pattern per line. Blank lines and lines starting with `#` will be ignored. The `.deployignore` file is automatically used if it exists in the source path, and cleanup will be enabled to remove any files from the server that are not present in the source.
+
+### Example `.deployignore` file
+
+```
+.*
+composer*
+dist
+node_modules
+package*
+phpcs*
+src
+vendor
+```
+
+### Configuring rsync with `.deployignore`
+
+The action automatically uses the `.deployignore` file if present. No additional configuration is needed in the `FLAGS` option.
 
 ## Setting up your SSH key
 
@@ -91,29 +109,7 @@ This action requires or supports the following variables:
 | `FLAGS`       | _string_ | Rsync flags. Defaults to `-azvrhi --inplace --exclude='.*'`.          |
 | `PHP_LINT`    | _string_ | Set to `true` to enable PHP linting. Defaults to `false`.             |
 | `CACHE_CLEAR` | _string_ | Set to `true` to clear WordPress cache. Defaults to `false`.          |
-| `CLEANUP`     | _string_ | Set to `true` to remove files and folders from the server that are not present in the deployment source. When enabled, a preview of files to be removed will be shown before the actual cleanup. Defaults to `false`. |
 | `SCRIPT`      | _string_ | Custom script to run on the remote server after deployment.          |
-
-## Ignoring files
-
-If you want to exclude certain files or directories from being deployed, you can create a `.deployignore` file in your source directory. In this file, you can specify patterns of files and directories to exclude—one pattern per line. Blank lines and lines starting with `#` will be ignored. The `.deployignore` file is automatically used if it exists in the source path.
-
-### Example `.deployignore` file
-
-```
-.*
-composer*
-dist
-node_modules
-package*
-phpcs*
-src
-vendor
-```
-
-### Configuring rsync with `.deployignore`
-
-The action automatically uses the `.deployignore` file if present. No additional configuration is needed in the `FLAGS` option.
 
 ## Rsync option flags
 

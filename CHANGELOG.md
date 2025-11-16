@@ -8,13 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/SemVer
 ## [1.1.0] - 2025-11-16
 
 ### Added
-- `CLEANUP` option to remove files and folders from the server that are not present in the deployment source
-- Preview functionality that lists files and folders to be removed when `CLEANUP` is enabled
 - Automatic use of `.deployignore` file if it exists in the source path for excluding files from deployment
+- Automatic cleanup (removal of non-deployment files) when `.deployignore` is present
 
 ### Changed
-- Updated documentation to reflect automatic `.deployignore` handling
-- Modified example workflow to demonstrate new `CLEANUP` option
+- Removed separate `CLEANUP` option; cleanup is now automatic when `.deployignore` is used
+- Updated documentation to reflect automatic cleanup behavior
+- Modified example workflow to remove `CLEANUP` input
 
 ## [1.0.1] - 2025-11-15
 

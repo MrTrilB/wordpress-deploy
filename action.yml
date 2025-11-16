@@ -31,9 +31,6 @@ inputs:
   CACHE_CLEAR:
     description: 'Clear WordPress cache after deployment'
     default: 'false'
-  CLEANUP:
-    description: 'Remove files and folders from the server that are not present in the deployment source'
-    default: 'false'
   SCRIPT:
     description: 'Post-deploy script to run on the server'
     default: ''
