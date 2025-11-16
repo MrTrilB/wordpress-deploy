@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/SemVer).
 
-## [Unreleased]
+## [1.1.0] - 2025-11-16
 
 ### Added
 - `CLEANUP` option to remove files and folders from the server that are not present in the deployment source
@@ -16,12 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/SemVer
 - Updated documentation to reflect automatic `.deployignore` handling
 - Modified example workflow to demonstrate new `CLEANUP` option
 
-## [1.0.1] - 2023-XX-XX
+## [1.0.1] - 2025-11-15
 
 ### Changed
 - Update action.yml with minor improvements
 
-## [1.0.0] - 2023-XX-XX
+## [1.0.0] - 2025-11-14
 
 ### Added
 - Initial release of WordPress Plugin/Theme Deployment Action
