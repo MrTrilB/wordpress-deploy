@@ -62,15 +62,12 @@ If you want to exclude certain files or directories from being deployed, you can
 
 ### Example `.deployignore` file
 
-```
-.*
+```ignore
 composer*
 dist
 node_modules
 package*
 phpcs*
-src
-vendor
 ```
 
 ### Configuring rsync with `.deployignore`
