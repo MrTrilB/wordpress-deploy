@@ -10,38 +10,186 @@ By default, the action deploys the repository's root directory. However, you can
 
 2. **Create a workflow file:** In the root directory of your repository, navigate to `.github/workflows/` and create a new YML file. You can name it anything you like, such as `deploy.yml`.
 
-3. **Add the workflow configuration:** Copy and paste the following code into your new YML file. Be sure to replace the placeholders with the appropriate values for your deployment environment. You can also specify which branches will trigger this action by editing the branches section of the YML file. For automatic file exclusions and cleanup, create a `.deployignore` file in your repository root.
+## YAML Configuration Examples
 
-   ```yml
-   name: 📦 Deploy to Production
-   on:
-      push:
-         branches:
-            - main
-      workflow_dispatch:
+Here are several examples of how to configure the WordPress Deploy Action for different scenarios:
 
-   jobs:
-      deploy:
-         name: 🚩 Deployment Job
-         runs-on: ubuntu-latest
-         steps:
-         - name: 🚚 Getting latest code
-           uses: actions/checkout@v4
+### Basic Plugin Deployment
 
-         - name: 🔁 Starting Deployment
-           uses: MrTrilB/wordpress-deploy@latest
-           with:
-               SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-               SERVER_HOST: your.server.com
-               SERVER_USER: youruser
-               REMOTE_PATH: /path/to/wp-content/plugins/your-plugin
-               FLAGS: -azvrhi --inplace
-               SCRIPT: bin/post-deploy.sh
-               PHP_LINT: true
-               CACHE_CLEAR: true
-   ```
+```yml
+name: 🚀 Deploy WordPress Plugin
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
 
-4. **Push changes to trigger the action:** After editing and saving the file, push the latest changes to your repository. The GitHub Action will automatically execute and handle the deployment process.
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deploy to Production
+        uses: MrTrilB/wordpress-deploy@latest
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          REMOTE_PATH: ${{ secrets.REMOTE_PATH }}
+```
+
+### Plugin Deployment with .deployignore (Recommended)
+
+Create a `.deployignore` file in your repository root with patterns to exclude:
+
+```
+.*
+composer*
+node_modules
+package*
+tests
+```
+
+Then use this workflow:
+
+```yml
+name: 🚀 Deploy WordPress Plugin
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Run PHP Linting
+        uses: MrTrilB/wordpress-deploy@latest
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          REMOTE_PATH: ${{ secrets.REMOTE_PATH }}
+          PHP_LINT: true
+```
+
+### Theme Deployment with Custom Path
+
+```yml
+name: 🎨 Deploy WordPress Theme
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🎨 Deploy Theme
+        uses: MrTrilB/wordpress-deploy@latest
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          REMOTE_PATH: /var/www/html/wp-content/themes/my-custom-theme
+          SRC_PATH: theme-files  # Deploy from specific directory
+          PHP_LINT: true
+          CACHE_CLEAR: true
+```
+
+### Full-Featured Deployment
+
+```yml
+name: 🚀 Full Deployment with All Features
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deploy with All Options
+        uses: MrTrilB/wordpress-deploy@latest
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          REMOTE_PATH: ${{ secrets.REMOTE_PATH }}
+          SRC_PATH: .  # Deploy from repository root
+          FLAGS: -azvrhi --inplace  # Custom rsync flags
+          PHP_LINT: true  # Enable PHP syntax checking
+          CACHE_CLEAR: true  # Clear WordPress cache after deployment
+          SCRIPT: scripts/post-deploy.sh  # Run custom script on server
+```
+
+### Staging and Production Deployment
+
+```yml
+name: 🚀 Deploy to Multiple Environments
+on:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  deploy-staging:
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🧪 Deploy to Staging
+        uses: MrTrilB/wordpress-deploy@latest
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          SERVER_HOST: ${{ secrets.STAGING_SERVER_HOST }}
+          SERVER_USER: ${{ secrets.STAGING_SERVER_USER }}
+          REMOTE_PATH: ${{ secrets.STAGING_REMOTE_PATH }}
+          PHP_LINT: true
+
+  deploy-production:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deploy to Production
+        uses: MrTrilB/wordpress-deploy@latest
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          REMOTE_PATH: ${{ secrets.REMOTE_PATH }}
+          PHP_LINT: true
+          CACHE_CLEAR: true
+```## Quick Start
+
+1. **Set up your SSH key** following the instructions in the "Setting up your SSH key" section below.
+
+2. **Create a workflow file** at `.github/workflows/deploy.yml` in your repository.
+
+3. **Choose an example** from the YAML Configuration Examples section above that matches your needs.
+
+4. **Configure secrets** in your repository settings with your SSH credentials and server details.
+
+5. **Push your changes** to trigger the deployment!
 
 ## Deploying from a specific branch or tag
 
