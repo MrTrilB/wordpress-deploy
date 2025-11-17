@@ -41,17 +41,7 @@ jobs:
 
 ### Plugin Deployment with .deployignore (Recommended)
 
-Create a `.deployignore` file in your repository root with patterns to exclude:
-
-```
-.*
-composer*
-node_modules
-package*
-tests
-```
-
-Then use this workflow:
+*See the "Ignoring files" section below for details on creating a `.deployignore` file.*
 
 ```yml
 name: 🚀 Deploy WordPress Plugin
@@ -179,7 +169,9 @@ jobs:
           REMOTE_PATH: ${{ secrets.REMOTE_PATH }}
           PHP_LINT: true
           CACHE_CLEAR: true
-```## Quick Start
+```
+
+## Quick Start
 
 1. **Set up your SSH key** following the instructions in the "Setting up your SSH key" section below.
 
@@ -210,7 +202,7 @@ If you want to exclude certain files or directories from being deployed, you can
 
 ### Example `.deployignore` file
 
-```
+```ignore
 .*
 composer*
 dist
@@ -224,7 +216,9 @@ vendor
 ### Configuring rsync with `.deployignore`
 
 The action automatically uses the `.deployignore` file if present in the source path. When found, it:
+
 - Excludes the specified files/patterns from deployment
+
 - Enables cleanup to remove files from the server that aren't in the source
 
 No additional configuration is needed in the `FLAGS` option.
